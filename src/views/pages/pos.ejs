@@ -1,0 +1,329 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="section">
+  <div class="container">
+    <div class="pos-layout">
+      <div class="pos-product">
+        <div class="pos-app-header">
+          <div class="app-detail-icon">
+            <% if (app.icon_url) { %>
+              <img src="<%= app.icon_url %>" alt="<%= app.name %>">
+            <% } else { %>
+              <div class="icon-placeholder icon-placeholder-lg"><%= app.name.charAt(0).toUpperCase() %></div>
+            <% } %>
+          </div>
+          <div>
+            <h1><%= app.name %></h1>
+            <p class="app-detail-developer">by <%= app.developer || 'Unknown' %></p>
+            <div class="app-detail-badges">
+              <span class="badge badge-<%= (app.platform || 'windows').toLowerCase() %>"><%= app.platform %></span>
+              <% if (app.version) { %><span class="badge">v<%= app.version %></span><% } %>
+            </div>
+          </div>
+        </div>
+        <p class="pos-description"><%= app.description %></p>
+
+        <div class="pos-status-bar status-<%= access.status %>">
+          <div class="status-icon">
+            <% if (access.status === 'owned') { %>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            <% } else if (access.status === 'renting' || access.status === 'demo') { %>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <% } else { %>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <% } %>
+          </div>
+          <div class="status-text">
+            <strong><%= access.label %></strong>
+            <% if (access.status === 'demo' && access.demoRemaining) { %>
+              <span id="timer" data-expires="<%= purchase.demo_expires_at %>"></span>
+            <% } else if (access.status === 'renting' && access.rentalRemaining) { %>
+              <span id="timer" data-expires="<%= purchase.access_expires_at %>"></span>
+            <% } %>
+          </div>
+          <% if (purchase && purchase.total_paid > 0) { %>
+            <div class="status-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: <%= Math.min((purchase.total_paid / appPrice) * 100, 100) %>%"></div>
+              </div>
+              <span>$<%= (purchase.total_paid / 100).toFixed(2) %> / $<%= (appPrice / 100).toFixed(2) %></span>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="pos-panel">
+        <div class="pos-price-tag">
+          <span class="pos-price">$0.99</span>
+          <span class="pos-price-label">per app</span>
+        </div>
+
+        <% if (!user) { %>
+          <div class="pos-section">
+            <p class="pos-note"><a href="/login">Log in</a> or <a href="/register">sign up</a> to purchase or demo this app.</p>
+          </div>
+        <% } else if (access.status === 'owned') { %>
+          <div class="pos-section pos-owned">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <h3>You Own This App</h3>
+            <p>Full access, forever. No expiration.</p>
+            <a href="/dock/<%= app.slug %>" class="btn btn-primary btn-lg btn-block">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              Open in Dock
+            </a>
+            <button onclick="saveToVault(<%= app.id %>, '<%= app.name %>')" class="btn btn-outline btn-block" id="vault-btn" style="margin-top: 8px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Save to Vault
+            </button>
+          </div>
+        <% } else { %>
+
+          <% if (access.canDemo) { %>
+            <div class="pos-section">
+              <h3>Try Before You Buy</h3>
+              <p class="pos-note">10-minute full-function demo. No payment required.</p>
+              <button onclick="startDemo()" class="btn btn-outline btn-block" id="demo-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Start 15-Min Demo
+              </button>
+            </div>
+            <div class="pos-divider"><span>or</span></div>
+          <% } %>
+
+          <% if (access.status === 'demo' || access.status === 'renting') { %>
+            <div class="pos-section">
+              <a href="/dock/<%= app.slug %>" class="btn btn-primary btn-block" style="margin-bottom: 8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                Open in Dock
+              </a>
+            </div>
+          <% } %>
+
+          <div class="pos-section">
+            <h3>Pay Now &mdash; Own It</h3>
+            <p class="pos-note">Pay the full $<%= (access.remainingCents / 100).toFixed(2) %> remaining and own it forever.</p>
+            <button onclick="payFull()" class="btn btn-primary btn-lg btn-block" id="pay-full-btn">
+              Pay $<%= (access.remainingCents / 100).toFixed(2) %> &mdash; Own Forever
+            </button>
+          </div>
+
+          <div class="pos-divider"><span>or</span></div>
+
+          <div class="pos-section">
+            <h3>Pay Later &mdash; Unlock Now</h3>
+            <p class="pos-note">Pay any amount ($0.01&ndash;$0.98). Get 72 hours of access. Each payment goes toward the $0.99 total.</p>
+            <div class="pos-amount-picker">
+              <div class="amount-presets">
+                <button class="amount-btn" data-amount="1">$0.01</button>
+                <button class="amount-btn" data-amount="10">$0.10</button>
+                <button class="amount-btn" data-amount="25">$0.25</button>
+                <button class="amount-btn active" data-amount="50">$0.50</button>
+              </div>
+              <div class="amount-custom">
+                <label>Custom amount (cents)</label>
+                <input type="number" id="custom-amount" class="input" min="1" max="<%= Math.min(access.remainingCents - 1, 98) %>" value="50" placeholder="1-98">
+              </div>
+            </div>
+            <button onclick="payPartial()" class="btn btn-outline btn-lg btn-block" id="pay-partial-btn">
+              Pay Partial &mdash; 72hr Access
+            </button>
+          </div>
+
+          <div id="payment-form-container" style="display: none;">
+            <div class="pos-section">
+              <h3 id="payment-title">Complete Payment</h3>
+              <div id="payment-element"></div>
+              <button onclick="submitPayment()" class="btn btn-primary btn-lg btn-block" id="submit-payment-btn" style="margin-top: 16px;">
+                Confirm Payment
+              </button>
+              <button onclick="cancelPayment()" class="btn btn-outline btn-block" style="margin-top: 8px;">Cancel</button>
+            </div>
+          </div>
+        <% } %>
+
+        <div class="pos-how-it-works">
+          <h4>How Bolt Lock Works</h4>
+          <ul>
+            <li>All apps are <strong>$0.99</strong></li>
+            <li>Free <strong>10-minute demo</strong> with full functionality</li>
+            <li>Pay <strong>any amount</strong> ($0.01&ndash;$0.99) to unlock</li>
+            <li>Partial payments give <strong>72 hours</strong> of access</li>
+            <li>Every payment <strong>resets the 72hr clock</strong></li>
+            <li>Once you reach <strong>$0.99 total</strong>, you <strong>own it forever</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<% if (publishableKey) { %>
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+const stripe = Stripe('<%= publishableKey %>');
+let elements = null;
+let paymentElement = null;
+let currentClientSecret = null;
+
+async function startDemo() {
+  const btn = document.getElementById('demo-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Starting demo...';
+  try {
+    const res = await fetch('/pos/<%= app.slug %>/demo', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    const data = await res.json();
+    if (data.success) {
+      showNotification('Demo started! Opening app dock...', 'success');
+      setTimeout(() => window.location.href = '/dock/<%= app.slug %>', 1000);
+    } else {
+      showNotification(data.error || 'Failed to start demo', 'error');
+      btn.disabled = false;
+      btn.innerHTML = 'Start 15-Min Demo';
+    }
+  } catch (e) {
+    showNotification('Failed to start demo', 'error');
+    btn.disabled = false;
+    btn.innerHTML = 'Start 15-Min Demo';
+  }
+}
+
+async function payFull() {
+  const amount = <%= access.remainingCents %>;
+  await initiatePayment(amount, 'pay-full-btn');
+}
+
+async function payPartial() {
+  const amount = parseInt(document.getElementById('custom-amount').value);
+  if (!amount || amount < 1 || amount > 98) {
+    showNotification('Enter an amount between $0.01 and $0.98', 'error');
+    return;
+  }
+  const remaining = <%= access.remainingCents %>;
+  if (amount >= remaining) {
+    showNotification('That amount would complete the purchase. Use "Pay Now" instead.', 'error');
+    return;
+  }
+  await initiatePayment(amount, 'pay-partial-btn');
+}
+
+async function initiatePayment(amount, btnId) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Setting up...';
+  try {
+    const res = await fetch('/pos/<%= app.slug %>/create-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount })
+    });
+    const data = await res.json();
+    if (data.error) {
+      showNotification(data.error, 'error');
+      btn.disabled = false;
+      return;
+    }
+
+    currentClientSecret = data.clientSecret;
+    document.getElementById('payment-title').textContent = data.willOwn
+      ? `Pay $${(data.amount / 100).toFixed(2)} — Own Forever`
+      : `Pay $${(data.amount / 100).toFixed(2)} — 72hr Access`;
+
+    elements = stripe.elements({ clientSecret: currentClientSecret, appearance: {
+      theme: 'night',
+      variables: { colorPrimary: '#6366f1', colorBackground: '#12121a', colorText: '#e8e8ef', borderRadius: '8px' }
+    }});
+    paymentElement = elements.create('payment');
+    document.getElementById('payment-element').innerHTML = '';
+    paymentElement.mount('#payment-element');
+
+    document.getElementById('payment-form-container').style.display = 'block';
+    document.getElementById('payment-form-container').scrollIntoView({ behavior: 'smooth' });
+  } catch (e) {
+    showNotification('Payment setup failed', 'error');
+  }
+  btn.disabled = false;
+  btn.innerHTML = btnId === 'pay-full-btn' ? 'Pay $<%= (access.remainingCents / 100).toFixed(2) %> — Own Forever' : 'Pay Partial — 72hr Access';
+}
+
+async function submitPayment() {
+  const btn = document.getElementById('submit-payment-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Processing...';
+  try {
+    const { error, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      confirmParams: { return_url: window.location.href },
+      redirect: 'if_required'
+    });
+
+    if (error) {
+      showNotification(error.message, 'error');
+      btn.disabled = false;
+      btn.innerHTML = 'Confirm Payment';
+      return;
+    }
+
+    if (paymentIntent && paymentIntent.status === 'succeeded') {
+      const confirmRes = await fetch('/pos/<%= app.slug %>/confirm-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentIntentId: paymentIntent.id })
+      });
+      const data = await confirmRes.json();
+      if (data.success) {
+        const msg = data.owned ? 'Payment complete! You now own this app.' : `Payment recorded! $${(data.totalPaid / 100).toFixed(2)} paid so far. 72 hours of access granted.`;
+        showNotification(msg, 'success');
+        setTimeout(() => location.reload(), 2000);
+      } else {
+        showNotification(data.error || 'Failed to confirm', 'error');
+      }
+    }
+  } catch (e) {
+    showNotification('Payment failed: ' + e.message, 'error');
+  }
+  btn.disabled = false;
+  btn.innerHTML = 'Confirm Payment';
+}
+
+function cancelPayment() {
+  document.getElementById('payment-form-container').style.display = 'none';
+  if (paymentElement) { paymentElement.destroy(); paymentElement = null; }
+  elements = null;
+  currentClientSecret = null;
+}
+
+document.querySelectorAll('.amount-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('custom-amount').value = btn.dataset.amount;
+  });
+});
+
+document.getElementById('custom-amount')?.addEventListener('input', () => {
+  document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+});
+
+function updateTimer() {
+  const el = document.getElementById('timer');
+  if (!el) return;
+  const expires = new Date(el.dataset.expires);
+  const now = new Date();
+  const diff = expires - now;
+  if (diff <= 0) { el.textContent = 'Expired'; location.reload(); return; }
+  const hrs = Math.floor(diff / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+  if (hrs > 0) {
+    el.textContent = `${hrs}h ${mins}m ${secs}s remaining`;
+  } else {
+    el.textContent = `${mins}m ${secs}s remaining`;
+  }
+}
+updateTimer();
+setInterval(updateTimer, 1000);
+</script>
+<% } %>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,163 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="section">
+  <div class="container">
+    <div class="app-detail">
+      <div class="app-detail-header">
+        <div class="app-detail-icon">
+          <% if (app.icon_url) { %>
+            <img src="<%= app.icon_url %>" alt="<%= app.name %>">
+          <% } else { %>
+            <div class="icon-placeholder icon-placeholder-lg"><%= app.name.charAt(0).toUpperCase() %></div>
+          <% } %>
+        </div>
+        <div class="app-detail-info">
+          <h1><%= app.name %></h1>
+          <p class="app-detail-developer">by <strong><%= app.developer || 'Unknown Developer' %></strong></p>
+          <div class="app-detail-meta">
+            <span class="app-rating">
+              <% for (let i = 1; i <= 5; i++) { %>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="<%= i <= Math.round(parseFloat(app.avg_rating)) ? 'currentColor' : 'none' %>" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <% } %>
+              <span><%= parseFloat(app.avg_rating).toFixed(1) %> (<%= app.review_count %> reviews)</span>
+            </span>
+          </div>
+          <div class="app-detail-badges">
+            <span class="badge badge-<%= (app.platform || 'windows').toLowerCase() %>"><%= app.platform || 'Windows' %></span>
+            <span class="badge"><%= app.license_type || 'Free' %></span>
+            <% if (app.version) { %><span class="badge">v<%= app.version %></span><% } %>
+          </div>
+          <% if (app.appharbor_verified) { %>
+            <div class="appharbor-shield">
+              <div class="appharbor-shield-icon">
+                <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M22 4 L24 4 L28 30 L30 44 L16 44 L18 30 Z" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linejoin="round"/>
+                  <path d="M20 44 L26 44 L26 36 L28 36 L28 44 L30 44 L30 36 L32 36 L32 44 L16 44 L18 36 L20 36 Z" fill="#22c55e" opacity="0.2"/>
+                  <rect x="21" y="34" width="6" height="8" rx="1" fill="#22c55e" opacity="0.5"/>
+                  <circle cx="24" cy="18" r="5" fill="#22c55e" opacity="0.9"/>
+                  <circle cx="24" cy="18" r="2.2" fill="#0d1117"/>
+                  <line x1="24" y1="13" x2="24" y2="6" stroke="#22c55e" stroke-width="1.5"/>
+                  <line x1="20" y1="15" x2="15" y2="10" stroke="#22c55e" stroke-width="1" opacity="0.5"/>
+                  <line x1="28" y1="15" x2="33" y2="10" stroke="#22c55e" stroke-width="1" opacity="0.5"/>
+                  <line x1="19" y1="18" x2="12" y2="18" stroke="#22c55e" stroke-width="1" opacity="0.3"/>
+                  <line x1="29" y1="18" x2="36" y2="18" stroke="#22c55e" stroke-width="1" opacity="0.3"/>
+                </svg>
+              </div>
+              <div class="appharbor-shield-text">
+                <span class="appharbor-label">Verified by <strong>AppHarbor</strong></span>
+                <span class="appharbor-detail">Scanned for malware, spyware, and corrupt data files</span>
+              </div>
+              <div class="appharbor-check">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#22c55e"><circle cx="12" cy="12" r="12"/><path d="M8 12.5 L10.5 15 L16 9.5" stroke="#0d1117" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+              </div>
+            </div>
+          <% } %>
+          <div class="app-detail-actions">
+            <a href="/pos/<%= app.slug %>" class="btn btn-primary btn-lg">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              Get App &mdash; $0.99
+            </a>
+            <button onclick="saveToVault(<%= app.id %>, '<%= app.name %>')" class="btn btn-outline btn-lg" id="vault-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Save to Vault
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-detail-body">
+        <div class="app-detail-main">
+          <div class="detail-section">
+            <h2>About</h2>
+            <p><%= app.description %></p>
+            <% if (app.long_description) { %>
+              <div class="long-description"><%= app.long_description %></div>
+            <% } %>
+          </div>
+
+          <div class="detail-section">
+            <h2>System Requirements</h2>
+            <table class="info-table">
+              <tr><td>Platform</td><td><%= app.platform || 'Windows' %></td></tr>
+              <% if (app.min_os_version) { %><tr><td>Minimum OS</td><td><%= app.min_os_version %></td></tr><% } %>
+              <% if (app.file_size) { %><tr><td>File Size</td><td><%= (app.file_size / (1024*1024)).toFixed(1) %> MB</td></tr><% } %>
+              <tr><td>License</td><td><%= app.license_type || 'Free' %></td></tr>
+            </table>
+          </div>
+
+          <div class="detail-section">
+            <h2>Reviews</h2>
+            <% if (user) { %>
+              <form action="/app/<%= app.slug %>/review" method="POST" class="review-form">
+                <div class="star-rating">
+                  <% for (let i = 5; i >= 1; i--) { %>
+                    <input type="radio" name="rating" value="<%= i %>" id="star<%= i %>" required>
+                    <label for="star<%= i %>">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </label>
+                  <% } %>
+                </div>
+                <textarea name="comment" placeholder="Write your review..." class="input" rows="3"></textarea>
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+              </form>
+            <% } else { %>
+              <p><a href="/login">Log in</a> to leave a review.</p>
+            <% } %>
+            <div class="reviews-list">
+              <% if (reviews.length === 0) { %>
+                <p class="text-muted">No reviews yet. Be the first to review!</p>
+              <% } %>
+              <% reviews.forEach(review => { %>
+                <div class="review-card">
+                  <div class="review-header">
+                    <strong><%= review.display_name || review.username %></strong>
+                    <span class="review-rating">
+                      <% for (let i = 1; i <= 5; i++) { %>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="<%= i <= review.rating ? 'currentColor' : 'none' %>" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                      <% } %>
+                    </span>
+                    <span class="review-date"><%= new Date(review.created_at).toLocaleDateString() %></span>
+                  </div>
+                  <% if (review.comment) { %><p><%= review.comment %></p><% } %>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+
+        <aside class="app-detail-sidebar">
+          <div class="sidebar-card">
+            <h3>App Info</h3>
+            <div class="sidebar-info">
+              <div><span>Downloads</span><strong><%= (app.download_count || 0).toLocaleString() %></strong></div>
+              <div><span>Version</span><strong><%= app.version || 'N/A' %></strong></div>
+              <div><span>Category</span><strong><a href="/browse?category=<%= app.category_slug %>"><%= app.category_name || 'None' %></a></strong></div>
+              <div><span>Updated</span><strong><%= new Date(app.updated_at).toLocaleDateString() %></strong></div>
+            </div>
+          </div>
+          <% if (app.website_url || app.source_url) { %>
+            <div class="sidebar-card">
+              <h3>Links</h3>
+              <% if (app.website_url) { %><a href="<%= app.website_url %>" target="_blank" class="sidebar-link">Website</a><% } %>
+              <% if (app.source_url) { %><a href="<%= app.source_url %>" target="_blank" class="sidebar-link">Source Code</a><% } %>
+            </div>
+          <% } %>
+        </aside>
+      </div>
+
+      <% if (related.length > 0) { %>
+        <div class="detail-section">
+          <h2>Related Apps</h2>
+          <div class="apps-grid">
+            <% related.forEach(app => { %>
+              <%- include('../partials/app-card', { app }) %>
+            <% }) %>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

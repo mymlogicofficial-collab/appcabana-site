@@ -1,0 +1,21 @@
+{
+  "name": "app-cabana",
+  "version": "1.0.0",
+  "description": "The App Cabana - App Store by MYM Logic LLC",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^9.4.3",
+    "ejs": "^4.0.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "multer": "^2.1.0",
+    "stripe": "^20.4.0"
+  }
+}

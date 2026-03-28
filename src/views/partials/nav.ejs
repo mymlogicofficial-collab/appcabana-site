@@ -1,0 +1,37 @@
+<header class="navbar">
+  <div class="container nav-content">
+    <a href="/" class="logo">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+        <polyline points="7.5 4.21 12 6.81 16.5 4.21"/>
+        <polyline points="7.5 19.79 7.5 14.6 3 12"/>
+        <polyline points="21 12 16.5 14.6 16.5 19.79"/>
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+        <line x1="12" y1="22.08" x2="12" y2="12"/>
+      </svg>
+      <span>The App Cabana</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/browse" class="nav-link">Browse</a>
+      <% if (user) { %>
+        <a href="/submit" class="nav-link">Submit App</a>
+        <a href="/my-apps" class="nav-link">My Apps</a>
+        <a href="/dashboard" class="nav-link">Dashboard</a>
+        <div class="user-menu">
+          <button class="user-btn"><%= user.display_name || user.username %></button>
+          <div class="dropdown">
+            <a href="/my-apps">My Apps</a>
+            <a href="/dashboard">Developer Dashboard</a>
+            <a href="/logout">Log Out</a>
+          </div>
+        </div>
+      <% } else { %>
+        <a href="/login" class="nav-link">Log In</a>
+        <a href="/register" class="btn btn-primary btn-sm">Sign Up</a>
+      <% } %>
+    </nav>
+    <button class="mobile-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</header>

@@ -1,0 +1,241 @@
+<%- include('../partials/head') %>
+
+<div class="dock-container" id="dock-container" data-slug="<%= app.slug %>" data-status="<%= access.status %>" data-expires="<%= access.status === 'demo' && purchase ? purchase.demo_expires_at : (access.status === 'renting' && purchase ? purchase.access_expires_at : '') %>">
+
+  <div class="dock-toolbar">
+    <div class="dock-toolbar-left">
+      <a href="/pos/<%= app.slug %>" class="dock-back-btn" title="Back to Store">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </a>
+      <div class="dock-app-identity">
+        <% if (app.icon_url) { %>
+          <img src="<%= app.icon_url %>" alt="" class="dock-app-icon-small">
+        <% } else { %>
+          <div class="dock-app-letter"><%= app.name.charAt(0) %></div>
+        <% } %>
+        <span class="dock-app-name"><%= app.name %></span>
+        <span class="badge badge-sm badge-<%= (app.platform || 'windows').toLowerCase() %>"><%= app.platform %></span>
+      </div>
+    </div>
+    <div class="dock-toolbar-center">
+      <% if (access.status === 'demo') { %>
+        <div class="dock-timer dock-timer-demo" id="dock-timer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="dock-timer-text">--:--</span>
+          <span class="dock-timer-label">DEMO</span>
+        </div>
+      <% } else if (access.status === 'renting') { %>
+        <div class="dock-timer dock-timer-rental" id="dock-timer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="dock-timer-text">--:--:--</span>
+          <span class="dock-timer-label">RENTAL</span>
+        </div>
+      <% } else if (access.status === 'owned') { %>
+        <div class="dock-status-owned">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <span>OWNED</span>
+        </div>
+      <% } %>
+    </div>
+    <div class="dock-toolbar-right">
+      <% if (access.status !== 'owned' && access.canBuy) { %>
+        <a href="/pos/<%= app.slug %>" class="btn btn-sm btn-primary">Buy $<%= (access.remainingCents / 100).toFixed(2) %></a>
+      <% } %>
+      <% if (access.status === 'owned') { %>
+        <button onclick="saveToVault(<%= app.id %>, '<%= app.name %>')" class="btn btn-sm btn-outline" id="vault-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Save
+        </button>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="dock-viewer" id="dock-viewer">
+    <div class="dock-app-frame">
+      <div class="dock-window">
+        <div class="dock-window-titlebar">
+          <div class="dock-window-dots">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+          </div>
+          <span class="dock-window-title"><%= app.name %> v<%= app.version || '1.0' %></span>
+          <div class="dock-window-spacer"></div>
+        </div>
+        <div class="dock-window-content" id="dock-app-content">
+          <div class="dock-app-workspace">
+            <div class="dock-sidebar-sim">
+              <div class="dock-sidebar-header"><%= app.name.charAt(0) %></div>
+              <div class="dock-sidebar-item active">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              </div>
+              <div class="dock-sidebar-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/></svg>
+              </div>
+              <div class="dock-sidebar-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </div>
+              <div class="dock-sidebar-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </div>
+            </div>
+            <div class="dock-main-area">
+              <div class="dock-main-header">
+                <h2><%= app.name %></h2>
+                <span class="dock-version">v<%= app.version || '1.0' %></span>
+              </div>
+              <div class="dock-main-body">
+                <div class="dock-info-section">
+                  <h3>About This App</h3>
+                  <p><%= app.description %></p>
+                </div>
+                <% if (app.long_description) { %>
+                  <div class="dock-info-section">
+                    <h3>Details</h3>
+                    <p><%= app.long_description %></p>
+                  </div>
+                <% } %>
+                <div class="dock-info-grid">
+                  <div class="dock-info-card">
+                    <span class="dock-info-label">Platform</span>
+                    <span class="dock-info-value"><%= app.platform %></span>
+                  </div>
+                  <div class="dock-info-card">
+                    <span class="dock-info-label">Version</span>
+                    <span class="dock-info-value"><%= app.version || 'N/A' %></span>
+                  </div>
+                  <div class="dock-info-card">
+                    <span class="dock-info-label">License</span>
+                    <span class="dock-info-value"><%= app.license_type || 'Free' %></span>
+                  </div>
+                  <div class="dock-info-card">
+                    <span class="dock-info-label">Size</span>
+                    <span class="dock-info-value"><%= app.file_size ? (app.file_size / (1024*1024)).toFixed(1) + ' MB' : 'N/A' %></span>
+                  </div>
+                  <div class="dock-info-card">
+                    <span class="dock-info-label">Min OS</span>
+                    <span class="dock-info-value"><%= app.min_os_version || 'N/A' %></span>
+                  </div>
+                  <div class="dock-info-card">
+                    <span class="dock-info-label">Downloads</span>
+                    <span class="dock-info-value"><%= (app.download_count || 0).toLocaleString() %></span>
+                  </div>
+                </div>
+                <% if (app.appharbor_verified) { %>
+                  <div class="dock-harbor-badge">
+                    <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
+                      <path d="M22 4 L24 4 L28 30 L30 44 L16 44 L18 30 Z" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linejoin="round"/>
+                      <circle cx="24" cy="18" r="5" fill="#22c55e" opacity="0.9"/>
+                      <circle cx="24" cy="18" r="2.2" fill="#0d1117"/>
+                    </svg>
+                    <span>Verified by AppHarbor &mdash; Malware-Free</span>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dock-lock-overlay" id="dock-lock-overlay" style="display: none;">
+    <div class="dock-lock-content">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      <h2 id="lock-title">Access Expired</h2>
+      <p id="lock-message">Your demo period has ended. Purchase the app to continue using it.</p>
+      <div class="dock-lock-actions">
+        <a href="/pos/<%= app.slug %>" class="btn btn-primary btn-lg">Get Full Access &mdash; $0.99</a>
+        <a href="/browse" class="btn btn-outline">Browse More Apps</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+(function() {
+  const container = document.getElementById('dock-container');
+  const slug = container.dataset.slug;
+  const status = container.dataset.status;
+  const expiresStr = container.dataset.expires;
+  const timerText = document.getElementById('dock-timer-text');
+  const lockOverlay = document.getElementById('dock-lock-overlay');
+  const viewer = document.getElementById('dock-viewer');
+
+  function lockDock(title, message) {
+    lockOverlay.style.display = 'flex';
+    viewer.classList.add('dock-blurred');
+    if (title) document.getElementById('lock-title').textContent = title;
+    if (message) document.getElementById('lock-message').textContent = message;
+  }
+
+  if (status === 'locked') {
+    lockDock('App Locked', 'You need to start a demo or purchase this app to access it.');
+  }
+
+  if ((status === 'demo' || status === 'renting') && expiresStr) {
+    const expires = new Date(expiresStr);
+
+    function tick() {
+      const now = new Date();
+      const diff = expires - now;
+
+      if (diff <= 0) {
+        window.location.href = `/pos/${slug}`;
+        return;
+      }
+
+      const hrs = Math.floor(diff / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+
+      if (timerText) {
+        if (hrs > 0) {
+          timerText.textContent = `${hrs}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        } else {
+          timerText.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        }
+      }
+
+      const timerEl = document.getElementById('dock-timer');
+      if (timerEl && status === 'demo' && diff < 120000) {
+        timerEl.classList.add('dock-timer-urgent');
+      }
+
+      requestAnimationFrame(() => setTimeout(tick, 250));
+    }
+    tick();
+  }
+
+  async function checkAccess() {
+    try {
+      const res = await fetch(`/dock/${slug}/check`);
+      const data = await res.json();
+      if (!data.hasAccess) {
+        window.location.href = `/pos/${slug}`;
+        return;
+      }
+      if (data.expiresAt && data.serverNow) {
+        const serverRemaining = data.expiresAt - data.serverNow;
+        if (serverRemaining <= 0) {
+          window.location.href = `/pos/${slug}`;
+          return;
+        }
+      }
+    } catch (e) {}
+  }
+
+  if (status === 'demo') {
+    setInterval(checkAccess, 10000);
+  } else if (status === 'renting') {
+    setInterval(checkAccess, 30000);
+  }
+})();
+</script>
+
+</body>
+</html>

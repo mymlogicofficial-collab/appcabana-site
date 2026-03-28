@@ -1,0 +1,91 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="section">
+  <div class="container">
+    <div class="dashboard-header">
+      <div>
+        <h1>My Apps</h1>
+        <p>Your purchased and demoed applications</p>
+      </div>
+      <a href="/browse" class="btn btn-primary">Browse More Apps</a>
+    </div>
+
+    <% if (purchases.length === 0) { %>
+      <div class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <h3>No apps yet</h3>
+        <p>Browse the store and get your first app. Try a 10-minute demo or start paying toward ownership.</p>
+        <a href="/browse" class="btn btn-primary" style="margin-top: 16px;">Browse Apps</a>
+      </div>
+    <% } else { %>
+      <div class="my-apps-grid">
+        <% purchases.forEach(p => { %>
+          <div class="my-app-card">
+            <div class="my-app-top">
+              <div class="my-app-icon">
+                <% if (p.icon_url) { %>
+                  <img src="<%= p.icon_url %>" alt="<%= p.app_name %>">
+                <% } else { %>
+                  <div class="icon-placeholder"><%= p.app_name.charAt(0) %></div>
+                <% } %>
+              </div>
+              <div class="my-app-info">
+                <h3><%= p.app_name %></h3>
+                <span class="badge badge-<%= (p.platform || 'windows').toLowerCase() %>"><%= p.platform %></span>
+                <% if (p.version) { %><span class="badge">v<%= p.version %></span><% } %>
+              </div>
+            </div>
+            <div class="my-app-status status-<%= p.access.status %>">
+              <strong><%= p.access.label %></strong>
+              <% if (p.access.status === 'renting' && p.access.rentalRemaining) { %>
+                <span class="timer-small" data-expires="<%= p.access_expires_at %>"></span>
+              <% } else if (p.access.status === 'demo' && p.access.demoRemaining) { %>
+                <span class="timer-small" data-expires="<%= p.demo_expires_at %>"></span>
+              <% } %>
+            </div>
+            <% if (p.total_paid > 0) { %>
+              <div class="my-app-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: <%= Math.min((p.total_paid / appPrice) * 100, 100) %>%"></div>
+                </div>
+                <span>$<%= (p.total_paid / 100).toFixed(2) %> / $<%= (appPrice / 100).toFixed(2) %></span>
+              </div>
+            <% } %>
+            <div class="my-app-actions">
+              <% if (p.access.status === 'owned' || p.access.status === 'demo' || p.access.status === 'renting') { %>
+                <a href="/dock/<%= p.app_slug %>" class="btn btn-sm btn-primary">
+                  Open in Dock
+                </a>
+                <% if (p.access.canBuy) { %>
+                  <a href="/pos/<%= p.app_slug %>" class="btn btn-sm btn-outline">Buy</a>
+                <% } %>
+              <% } else { %>
+                <a href="/pos/<%= p.app_slug %>" class="btn btn-sm btn-outline">
+                  <%= p.access.canBuy ? 'Continue Payment' : 'View' %>
+                </a>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<script>
+function updateTimers() {
+  document.querySelectorAll('.timer-small').forEach(el => {
+    const expires = new Date(el.dataset.expires);
+    const diff = expires - new Date();
+    if (diff <= 0) { el.textContent = 'Expired'; return; }
+    const hrs = Math.floor(diff / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    el.textContent = hrs > 0 ? `${hrs}h ${mins}m left` : `${mins}m left`;
+  });
+}
+updateTimers();
+setInterval(updateTimers, 60000);
+</script>
+
+<%- include('../partials/footer') %>

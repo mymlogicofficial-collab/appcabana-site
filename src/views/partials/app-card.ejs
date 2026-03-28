@@ -1,0 +1,38 @@
+<a href="/app/<%= app.slug %>" class="app-card">
+  <div class="app-icon">
+    <% if (app.icon_url) { %>
+      <img src="<%= app.icon_url %>" alt="<%= app.name %>">
+    <% } else { %>
+      <div class="icon-placeholder"><%= app.name.charAt(0).toUpperCase() %></div>
+    <% } %>
+    <% if (app.appharbor_verified) { %>
+      <div class="appharbor-badge-mini" title="Verified by AppHarbor — Malware-Free">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L14.5 8.5H21L15.5 13L17.5 20L12 16L6.5 20L8.5 13L3 8.5H9.5L12 2Z" fill="none" stroke="#22c55e" stroke-width="0"/>
+          <path d="M12 22 L13 22 L14.5 12 L16 22 L10 22 L11.5 12 Z" fill="#22c55e" opacity="0.3"/>
+          <path d="M11 3 L12 3 L13.5 15 L14.5 22 L9.5 22 L10.5 15 Z" fill="none" stroke="#22c55e" stroke-width="1.2" stroke-linejoin="round"/>
+          <circle cx="12" cy="8" r="2.5" fill="#22c55e" opacity="0.9"/>
+          <circle cx="12" cy="8" r="1" fill="#0d1117"/>
+          <line x1="12" y1="5.5" x2="12" y2="3" stroke="#22c55e" stroke-width="0.8"/>
+          <line x1="10" y1="6.5" x2="8" y2="4.5" stroke="#22c55e" stroke-width="0.6" opacity="0.5"/>
+          <line x1="14" y1="6.5" x2="16" y2="4.5" stroke="#22c55e" stroke-width="0.6" opacity="0.5"/>
+        </svg>
+      </div>
+    <% } %>
+  </div>
+  <div class="app-info">
+    <h3 class="app-name"><%= app.name %></h3>
+    <p class="app-developer"><%= app.developer || 'Unknown' %></p>
+    <div class="app-meta">
+      <span class="app-rating">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <%= parseFloat(app.avg_rating).toFixed(1) %>
+      </span>
+      <span class="app-category"><%= app.category_name || 'Uncategorized' %></span>
+    </div>
+    <div class="app-bottom">
+      <span class="badge badge-<%= (app.platform || 'windows').toLowerCase() %>"><%= app.platform || 'Windows' %></span>
+      <span class="app-downloads"><%= app.download_count || 0 %> downloads</span>
+    </div>
+  </div>
+</a>

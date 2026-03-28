@@ -1,0 +1,79 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="page-header">
+  <div class="container">
+    <h1>Browse Apps</h1>
+    <p>Discover desktop, web, and mobile applications for your vault</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="browse-layout">
+      <aside class="browse-sidebar">
+        <form action="/browse" method="GET" class="filter-form">
+          <div class="filter-group">
+            <label>Search</label>
+            <input type="text" name="search" placeholder="Search apps..." value="<%= filters.search || '' %>" class="input">
+          </div>
+          <div class="filter-group">
+            <label>Category</label>
+            <select name="category" class="input">
+              <option value="">All Categories</option>
+              <% categories.forEach(cat => { %>
+                <option value="<%= cat.slug %>" <%= filters.category === cat.slug ? 'selected' : '' %>><%= cat.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Platform</label>
+            <select name="platform" class="input">
+              <option value="">All Platforms</option>
+              <option value="Windows" <%= filters.platform === 'Windows' ? 'selected' : '' %>>Windows</option>
+              <option value="macOS" <%= filters.platform === 'macOS' ? 'selected' : '' %>>macOS</option>
+              <option value="Linux" <%= filters.platform === 'Linux' ? 'selected' : '' %>>Linux</option>
+              <option value="Cross-platform" <%= filters.platform === 'Cross-platform' ? 'selected' : '' %>>Cross-platform</option>
+              <option value="Web" <%= filters.platform === 'Web' ? 'selected' : '' %>>Web App</option>
+              <option value="iOS" <%= filters.platform === 'iOS' ? 'selected' : '' %>>iOS</option>
+              <option value="Android" <%= filters.platform === 'Android' ? 'selected' : '' %>>Android</option>
+              <option value="Mobile" <%= filters.platform === 'Mobile' ? 'selected' : '' %>>Mobile (iOS & Android)</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Sort By</label>
+            <select name="sort" class="input">
+              <option value="" <%= !filters.sort ? 'selected' : '' %>>Featured</option>
+              <option value="newest" <%= filters.sort === 'newest' ? 'selected' : '' %>>Newest</option>
+              <option value="popular" <%= filters.sort === 'popular' ? 'selected' : '' %>>Most Popular</option>
+              <option value="rating" <%= filters.sort === 'rating' ? 'selected' : '' %>>Highest Rated</option>
+              <option value="name" <%= filters.sort === 'name' ? 'selected' : '' %>>Name (A-Z)</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Apply Filters</button>
+          <a href="/browse" class="btn btn-outline btn-block">Clear Filters</a>
+        </form>
+      </aside>
+      <main class="browse-main">
+        <div class="results-header">
+          <span><%= apps.length %> app<%= apps.length !== 1 ? 's' : '' %> found</span>
+        </div>
+        <% if (apps.length === 0) { %>
+          <div class="empty-state">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <h3>No apps found</h3>
+            <p>Try adjusting your filters or <a href="/submit">submit your own app</a>.</p>
+          </div>
+        <% } else { %>
+          <div class="apps-grid">
+            <% apps.forEach(app => { %>
+              <%- include('../partials/app-card', { app }) %>
+            <% }) %>
+          </div>
+        <% } %>
+      </main>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

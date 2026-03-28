@@ -1,0 +1,72 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="section">
+  <div class="container">
+    <div class="dashboard-header">
+      <div>
+        <h1>Developer Dashboard</h1>
+        <p>Manage your submitted apps</p>
+      </div>
+      <a href="/submit" class="btn btn-primary">Submit New App</a>
+    </div>
+    <div class="dashboard-stats">
+      <div class="dash-stat">
+        <span class="dash-stat-value"><%= apps.length %></span>
+        <span class="dash-stat-label">Apps Published</span>
+      </div>
+      <div class="dash-stat">
+        <span class="dash-stat-value"><%= totalDownloads.toLocaleString() %></span>
+        <span class="dash-stat-label">Total Downloads</span>
+      </div>
+    </div>
+    <% if (apps.length === 0) { %>
+      <div class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <h3>No apps yet</h3>
+        <p>Start by <a href="/submit">submitting your first app</a>.</p>
+      </div>
+    <% } else { %>
+      <div class="dashboard-table">
+        <table>
+          <thead>
+            <tr>
+              <th>App</th>
+              <th>Category</th>
+              <th>Rating</th>
+              <th>Downloads</th>
+              <th>Reviews</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% apps.forEach(app => { %>
+              <tr>
+                <td>
+                  <div class="table-app">
+                    <% if (app.icon_url) { %>
+                      <img src="<%= app.icon_url %>" alt="" class="table-icon">
+                    <% } else { %>
+                      <div class="icon-placeholder icon-sm"><%= app.name.charAt(0) %></div>
+                    <% } %>
+                    <div>
+                      <strong><%= app.name %></strong>
+                      <small>v<%= app.version || '—' %></small>
+                    </div>
+                  </div>
+                </td>
+                <td><%= app.category_name || '—' %></td>
+                <td><%= parseFloat(app.avg_rating).toFixed(1) %></td>
+                <td><%= (app.download_count || 0).toLocaleString() %></td>
+                <td><%= app.review_count %></td>
+                <td><a href="/app/<%= app.slug %>" class="btn btn-sm btn-outline">View</a></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>
