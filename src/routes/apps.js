@@ -177,6 +177,16 @@ router.get('/download/:slug', (req, res) => {
 });
 
 // Admin: approve/feature
+router.post('/admin/apps/:id/unapprove', requireAdmin, (req, res) => {
+  db.prepare('UPDATE apps SET is_approved = 0 WHERE id = ?').run(req.params.id);
+  res.json({ success: true });
+});
+
+router.post('/admin/apps/:id/delete', requireAdmin, (req, res) => {
+  db.prepare('DELETE FROM apps WHERE id = ?').run(req.params.id);
+  res.json({ success: true });
+});
+
 router.post('/admin/apps/:id/approve', requireAdmin, (req, res) => {
   db.prepare('UPDATE apps SET is_approved = 1 WHERE id = ?').run(req.params.id);
   res.redirect('back');
