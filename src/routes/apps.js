@@ -203,4 +203,13 @@ router.get('/dashboard', requireAuth, (req, res) => {
   res.render('pages/dashboard', { myApps });
 });
 
+
+router.post('/admin/apps/:id/edit', requireAdmin, (req, res) => {
+  const { name, description, long_description, website_url, icon_url } = req.body;
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  db.prepare(`UPDATE apps SET name=?, slug=?, description=?, long_description=?, website_url=?, icon_url=?, updated_at=datetime('now') WHERE id=?`)
+    .run(name, slug, description, long_description, website_url || null, icon_url || null, req.params.id);
+  res.json({ success: true, slug });
+});
+
 module.exports = router;
