@@ -1,121 +1,283 @@
-<%- include('../partials/head') %>
-<%- include('../partials/nav') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The App Cabana — Apps for Real People</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@300;400;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--teal:#00b4a6;--coral:#ff6b6b;--sand:#fff8f0;--dark:#1a1a2e;--mid:#16213e;}
+body{background:var(--sand);color:#2a2a2a;font-family:'Inter',sans-serif;overflow-x:hidden;}
 
-<section class="hero">
-  <div class="container">
-    <div class="hero-content">
-      <h1>Your Sovereign<br>App Store</h1>
-      <p>Browse, share, and install desktop, web, and mobile applications directly to your local file system. No middleman, no cloud lock-in &mdash; full control over your software.</p>
-      <div class="hero-actions">
-        <a href="/browse" class="btn btn-primary btn-lg">Browse Apps</a>
-        <a href="/submit" class="btn btn-outline btn-lg">Submit Your App</a>
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 40px;display:flex;justify-content:space-between;align-items:center;background:rgba(255,248,240,0.95);border-bottom:2px solid rgba(0,180,166,0.15);backdrop-filter:blur(10px);}
+.logo{font-family:'Pacifico',cursive;font-size:1.5rem;color:var(--teal);}
+nav ul{display:flex;gap:24px;list-style:none;}
+nav a{color:#666;text-decoration:none;font-size:0.88rem;font-weight:600;letter-spacing:0.5px;transition:color 0.2s;}
+nav a:hover{color:var(--teal);}
+.nav-cta{background:var(--teal);color:#fff !important;padding:8px 20px;border-radius:20px;}
+.nav-cta:hover{background:#00968a !important;color:#fff !important;}
+
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 20px 60px;background:linear-gradient(160deg,#fff8f0 0%,#e8f8f7 50%,#fff0f3 100%);position:relative;overflow:hidden;}
+.hero-deco{position:absolute;font-size:8rem;opacity:0.04;pointer-events:none;user-select:none;}
+.hero-deco.d1{top:10%;left:5%;}
+.hero-deco.d2{bottom:15%;right:8%;}
+.hero-deco.d3{top:40%;left:2%;}
+.hero-badge{display:inline-block;background:rgba(0,180,166,0.1);color:var(--teal);padding:6px 18px;border-radius:20px;font-size:0.75rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;border:1px solid rgba(0,180,166,0.2);}
+.hero h1{font-family:'Pacifico',cursive;font-size:clamp(2.8rem,8vw,6rem);color:var(--dark);line-height:1.15;margin-bottom:16px;}
+.hero h1 span{color:var(--teal);}
+.hero p{font-size:clamp(1rem,2.5vw,1.3rem);color:#666;max-width:580px;line-height:1.7;margin-bottom:40px;}
+.price-badge{display:inline-block;background:var(--coral);color:#fff;font-size:1.8rem;font-weight:900;padding:10px 28px;border-radius:50px;margin-bottom:32px;box-shadow:0 8px 24px rgba(255,107,107,0.3);transform:rotate(-2deg);}
+.cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.btn-teal{background:var(--teal);color:#fff;padding:16px 40px;border-radius:30px;font-weight:700;text-decoration:none;font-size:1rem;transition:all 0.2s;box-shadow:0 6px 20px rgba(0,180,166,0.3);transform:rotate(-1.5deg);}
+.btn-teal:hover{background:#00968a;transform:translateY(-2px) rotate(-1.5deg);box-shadow:0 10px 28px rgba(0,180,166,0.4);}
+.btn-outline{background:transparent;color:var(--teal);padding:16px 40px;border-radius:30px;font-weight:700;text-decoration:none;font-size:1rem;border:2px solid var(--teal);transition:all 0.2s;transform:rotate(1.2deg);}
+.btn-outline:hover{background:rgba(0,180,166,0.08);transform:rotate(1.2deg) translateY(-2px);}
+.stats-bar{display:flex;gap:40px;justify-content:center;flex-wrap:wrap;margin-top:48px;padding-top:32px;border-top:1px solid rgba(0,180,166,0.15);}
+.stat-item{text-align:center;}
+.stat-num{font-family:'Pacifico',cursive;font-size:2rem;color:var(--teal);}
+.stat-label{font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:#999;font-weight:600;}
+
+
+.wave{width:100%;overflow:hidden;line-height:0;margin-top:-2px;}
+.wave svg{display:block;}
+
+.apps-section{background:#fff;padding:80px 20px;}
+.section-inner{max-width:1100px;margin:0 auto;}
+.section-center{text-align:center;margin-bottom:48px;}
+.section-label{font-size:0.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--teal);font-weight:700;margin-bottom:10px;}
+.section-title{font-family:'Pacifico',cursive;font-size:clamp(1.8rem,4vw,3rem);color:var(--dark);margin-bottom:14px;}
+.section-sub{color:#888;font-size:1rem;max-width:500px;margin:0 auto;}
+
+.app-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:28px;}
+.app-tile{background:var(--sand);border-radius:16px;padding:28px;border:2px solid transparent;transition:all 0.25s;cursor:pointer;position:relative;overflow:hidden;}
+.app-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--teal),var(--coral));opacity:0;transition:opacity 0.3s;}
+.app-tile:hover{border-color:rgba(0,180,166,0.3);transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.08);}
+.app-tile:hover::before{opacity:1;}
+.tile-icon{font-size:2.5rem;margin-bottom:14px;}
+.tile-name{font-weight:700;font-size:1.1rem;color:var(--dark);margin-bottom:6px;}
+.tile-desc{color:#888;font-size:0.88rem;line-height:1.6;margin-bottom:16px;}
+.tile-footer{display:flex;align-items:center;justify-content:space-between;}
+.tile-price{font-weight:900;font-size:1.3rem;color:var(--coral);}
+.tile-btn{background:var(--teal);color:#fff;border:none;padding:8px 18px;border-radius:20px;font-size:0.8rem;font-weight:700;cursor:pointer;transition:background 0.2s;}
+.tile-btn:hover{background:#00968a;}
+.tile-badge{position:absolute;top:14px;right:14px;font-size:0.65rem;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;}
+.badge-new{background:rgba(255,107,107,0.15);color:var(--coral);border:1px solid rgba(255,107,107,0.3);}
+.badge-soon{background:rgba(0,180,166,0.1);color:var(--teal);border:1px solid rgba(0,180,166,0.2);}
+
+/* WONKY TILE BUTTONS — each one slightly different */
+.app-tile:nth-child(1) .tile-btn{transform:rotate(-2deg);}
+.app-tile:nth-child(2) .tile-btn{transform:rotate(1.5deg);}
+.app-tile:nth-child(3) .tile-btn{transform:rotate(-1deg);}
+.app-tile:nth-child(4) .tile-btn{transform:rotate(2.5deg);}
+.app-tile:nth-child(5) .tile-btn{transform:rotate(-1.8deg);}
+.app-tile:nth-child(6) .tile-btn{transform:rotate(1deg);}
+
+.why-section{background:linear-gradient(135deg,var(--dark),var(--mid));padding:80px 20px;color:#fff;}
+.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;margin-top:48px;}
+.why-card{text-align:center;padding:20px;}
+.why-icon{font-size:2.5rem;margin-bottom:14px;}
+.why-card h3{font-size:1rem;font-weight:700;margin-bottom:8px;color:#fff;}
+.why-card p{color:#8892b0;font-size:0.88rem;line-height:1.6;}
+.why-section .section-title{color:#fff;}
+.why-section .section-label{color:var(--teal);}
+.why-section .section-sub{color:#8892b0;}
+
+
+.nautical-section{background:linear-gradient(180deg,#0a1628 0%,#0d2137 60%,#0a3d52 100%);padding:90px 20px;color:#fff;text-align:center;position:relative;overflow:hidden;}
+.nautical-section::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#00b4a6,#ff6b6b,#00b4a6);}
+.nautical-tagline{font-family:'Pacifico',cursive;font-size:clamp(1.8rem,5vw,3.5rem);color:#fff;line-height:1.3;margin-bottom:16px;text-shadow:0 2px 20px rgba(0,180,166,0.4);}
+.nautical-tagline span{color:#00b4a6;}
+.nautical-sub{color:#8892b0;font-size:1.1rem;max-width:600px;margin:0 auto 60px;line-height:1.7;}
+.badges-row{display:flex;gap:60px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:48px;}
+.badge-item{text-align:center;}
+.badge-img{width:140px;height:140px;object-fit:contain;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.5);transition:transform 0.3s;}
+.badge-img:hover{transform:translateY(-6px) scale(1.05);}
+.badge-label{margin-top:12px;font-size:0.78rem;letter-spacing:2px;text-transform:uppercase;color:#8892b0;font-weight:600;}
+
+footer{background:var(--dark);color:#8892b0;padding:40px;text-align:center;}
+.footer-logo{font-family:'Pacifico',cursive;font-size:1.8rem;color:var(--teal);margin-bottom:12px;}
+footer p{font-size:0.85rem;margin-bottom:8px;}
+footer a{color:var(--teal);text-decoration:none;}
+.footer-links{display:flex;gap:20px;justify-content:center;margin-top:16px;flex-wrap:wrap;}
+.footer-links a{color:#666;font-size:0.82rem;text-decoration:none;transition:color 0.2s;}
+.footer-links a:hover{color:var(--teal);}
+
+@media(max-width:600px){nav ul{display:none;} nav{padding:12px 20px;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">The App Cabana</div>
+  <ul>
+    <li><a href="#apps">Apps</a></li>
+    <li><a href="#why">Why Us</a></li>
+    <li><a href="https://mymlogic.com">MYM Logic</a></li>
+    <li><a href="#apps" class="nav-cta">Browse Apps</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="hero-deco d1">🏖</div>
+  <div class="hero-deco d2">📱</div>
+  <div class="hero-deco d3">☀️</div>
+  <div class="hero-badge">🏖 Welcome to The App Cabana</div>
+  <h1>Apps for<br><span>Real People.</span></h1>
+  <p>No subscriptions. No bloat. No gatekeeping. Just solid tools priced for everyone — because everybody usually has a dollar.</p>
+  <div class="price-badge">Starting at $1</div>
+  <div class="cta-row">
+    <a href="#apps" class="btn-teal">Browse the Apps</a>
+    <a href="https://mymlogic.com" class="btn-outline">About MYM Logic</a>
+  </div>
+</div>
+
+<div class="wave">
+  <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" fill="#ffffff"/>
+  </svg>
+</div>
+
+<section class="apps-section" id="apps">
+  <div class="section-inner">
+    <div class="section-center">
+      <div class="section-label">The Lineup</div>
+      <div class="section-title">Pick Your Tool 🛠</div>
+      <div class="section-sub">Every app does one thing well. Every app costs a dollar. That's the deal.</div>
+    </div>
+    <div class="app-grid">
+
+      <div class="app-tile">
+        <span class="tile-badge badge-new">New</span>
+        <div class="tile-icon">💻</div>
+        <div class="tile-name">codeME</div>
+        <div class="tile-desc">Translate plain English to code in 28 languages — or flip it and explain any code in plain English. Voice input included. No coding knowledge required.</div>
+        <div class="tile-footer">
+          <div class="tile-price">$1</div>
+          <button class="tile-btn">Get It</button>
+        </div>
       </div>
-      <div class="hero-stats">
-        <div class="stat">
-          <span class="stat-value"><%= stats.total_apps %></span>
-          <span class="stat-label">Apps Listed</span>
+
+      <div class="app-tile">
+        <span class="tile-badge badge-new">New</span>
+        <div class="tile-icon">🎸</div>
+        <div class="tile-name">Mystic Riffer</div>
+        <div class="tile-desc">AI-powered cosmic guitar riff generator. Input a mood, a key, a vibe — get a riff. Built for musicians who need a starting point, not a lesson.</div>
+        <div class="tile-footer">
+          <div class="tile-price">$1</div>
+          <button class="tile-btn">Get It</button>
         </div>
-        <div class="stat">
-          <span class="stat-value"><%= Number(stats.total_downloads).toLocaleString() %></span>
-          <span class="stat-label">Total Downloads</span>
+      </div>
+
+      <div class="app-tile">
+        <span class="tile-badge badge-new">New</span>
+        <div class="tile-icon">🎮</div>
+        <div class="tile-name">FidgePop</div>
+        <div class="tile-desc">The ultimate fidget toy for your screen. Pop, spin, click, tap — designed for focus, stress relief, and just needing something to do with your hands.</div>
+        <div class="tile-footer">
+          <div class="tile-price">$1</div>
+          <button class="tile-btn">Get It</button>
         </div>
-        <div class="stat">
-          <span class="stat-value"><%= stats.total_developers %></span>
-          <span class="stat-label">Developers</span>
+      </div>
+
+      <div class="app-tile">
+        <span class="tile-badge badge-soon">Coming Soon</span>
+        <div class="tile-icon">✏️</div>
+        <div class="tile-name">Gression Studio</div>
+        <div class="tile-desc">A drawing app built on real physics. Pencil grades, tortillon shaders, cloth shaders — all using the patented Gression technique for natural media behavior.</div>
+        <div class="tile-footer">
+          <div class="tile-price">$1</div>
+          <button class="tile-btn" disabled style="background:#aaa;cursor:not-allowed;">Soon</button>
         </div>
+      </div>
+
+      <div class="app-tile">
+        <span class="tile-badge badge-soon">Coming Soon</span>
+        <div class="tile-icon">🌙</div>
+        <div class="tile-name">Date Night</div>
+        <div class="tile-desc">A dating app that actually lets people connect. Shared drawing games, darts, no algorithm interference. Just two people and a vibe.</div>
+        <div class="tile-footer">
+          <div class="tile-price">$1</div>
+          <button class="tile-btn" disabled style="background:#aaa;cursor:not-allowed;">Soon</button>
+        </div>
+      </div>
+
+      <div class="app-tile">
+        <span class="tile-badge badge-soon">Coming Soon</span>
+        <div class="tile-icon">🤖</div>
+        <div class="tile-name">More on the way...</div>
+        <div class="tile-desc">MYM Logic is always building. Check back — the cabana keeps getting bigger.</div>
+        <div class="tile-footer">
+          <div class="tile-price">—</div>
+          <button class="tile-btn" disabled style="background:#aaa;cursor:not-allowed;">Soon</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="why-section" id="why">
+  <div class="section-inner">
+    <div class="section-center">
+      <div class="section-label">Why The App Cabana</div>
+      <div class="section-title">The Way It Should Be</div>
+      <div class="section-sub">We're done with the way the app industry works. Here's how we do it different.</div>
+    </div>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-icon">💵</div>
+        <h3>One Dollar</h3>
+        <p>Not $9.99/month. Not a "free trial" that auto-charges. One dollar, one app, yours forever.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">🔒</div>
+        <h3>App Harbor Verified</h3>
+        <p>Every app in this store is signed, verified, and safe. No malware. No shady permissions. Our reputation is on every download.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">⚡</div>
+        <h3>No Bloat</h3>
+        <p>Every app does one thing and does it well. We don't pad features to justify a price. We just build what works.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">🏗</div>
+        <h3>Built Different</h3>
+        <p>MYM Logic LLC is an indie think tank, not a corporation. Every app here came from a real problem someone actually had.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="section">
-  <div class="container">
-    <div class="section-header">
-      <h2>How It Works</h2>
-      <p>Direct-to-disk app hosting powered by the File System Access API</p>
-    </div>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        </div>
-        <h3>Save to Your Vault</h3>
-        <p>Use the File System Access API to save apps directly to your chosen directory. Pick your folder, control your storage.</p>
+<section class="nautical-section">
+  <div class="section-inner">
+    <div class="nautical-tagline">The App Cabana &mdash;<br>here <span>before</span> you surf,<br>and waiting when you're done.</div>
+    <p class="nautical-sub">The web is wild. Every tab is another wave. When you need a real tool that just works &mdash; pull up a chair. The cabana's always open.</p>
+    <div class="badges-row">
+      <div class="badge-item">
+        <img class="badge-img" src="https://media.base44.com/images/public/69b30734d73ffff52d03e8f1/76da52a7b_appharbor3.png" alt="App Harbor Verified"/>
+        <div class="badge-label">Protected by App Harbor</div>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        </div>
-        <h3>Local File System Access</h3>
-        <p>Full read/write access to your local directories. Organize, manage, and launch apps without cloud dependencies.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        </div>
-        <h3>Sovereign Storage</h3>
-        <p>Your 1TB vault stays on your machine. No subscriptions, no bandwidth limits, no third-party access to your software library.</p>
+      <div class="badge-item">
+        <img class="badge-img" src="https://media.base44.com/images/public/69b30734d73ffff52d03e8f1/2e9638a32_generated_image.png" alt="Officially Stored by Dockers"/>
+        <div class="badge-label">Stored by Dockers</div>
       </div>
     </div>
+    <p style="color:#4a5568;font-size:0.82rem;letter-spacing:1px;">Every app is verified, signed, and safe. No surprises. No sketchy permissions. Just solid software at the cabana.</p>
   </div>
 </section>
 
-<section class="section section-dark">
-  <div class="container">
-    <div class="section-header">
-      <h2>Browse by Category</h2>
-      <p>Find the perfect app for your needs</p>
-    </div>
-    <div class="categories-grid">
-      <% categories.forEach(cat => { %>
-        <a href="/browse?category=<%= cat.slug %>" class="category-card">
-          <div class="category-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <% if (cat.icon === 'briefcase') { %><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-              <% } else if (cat.icon === 'code') { %><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-              <% } else if (cat.icon === 'palette') { %><circle cx="13.5" cy="6.5" r="0.5"/><circle cx="17.5" cy="10.5" r="0.5"/><circle cx="8.5" cy="7.5" r="0.5"/><circle cx="6.5" cy="12.5" r="0.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
-              <% } else if (cat.icon === 'play-circle') { %><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>
-              <% } else if (cat.icon === 'wrench') { %><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-              <% } else if (cat.icon === 'message-circle') { %><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-              <% } else if (cat.icon === 'shield') { %><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              <% } else if (cat.icon === 'book-open') { %><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-              <% } else if (cat.icon === 'gamepad-2') { %><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="2"/>
-              <% } else if (cat.icon === 'building-2') { %><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>
-              <% } else { %><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-              <% } %>
-            </svg>
-          </div>
-          <span><%= cat.name %></span>
-        </a>
-      <% }) %>
-    </div>
+<footer>
+  <div class="footer-logo">The App Cabana</div>
+  <p>A MYM Logic LLC production. Built different, priced right.</p>
+  <p><a href="https://mymlogic.com">mymlogic.com</a></p>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Contact</a>
+    <a href="https://mymlogic.com">MYM Logic LLC</a>
   </div>
-</section>
+</footer>
 
-<% if (apps.length > 0) { %>
-<section class="section">
-  <div class="container">
-    <div class="section-header">
-      <h2>Featured Apps</h2>
-      <a href="/browse" class="btn btn-outline btn-sm">View All</a>
-    </div>
-    <div class="apps-grid">
-      <% apps.forEach(app => { %>
-        <%- include('../partials/app-card', { app }) %>
-      <% }) %>
-    </div>
-  </div>
-</section>
-<% } %>
-
-<section class="section cta-section">
-  <div class="container">
-    <div class="cta-content">
-      <h2>Ready to Share Your App?</h2>
-      <p>Join the platform and make your application available to thousands of users. Desktop, web, or mobile &mdash; direct downloads, no restrictions.</p>
-      <a href="/submit" class="btn btn-primary btn-lg">Submit Your App</a>
-    </div>
-  </div>
-</section>
-
-<%- include('../partials/footer') %>
+</body>
+</html>
